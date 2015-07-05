@@ -17,8 +17,10 @@ import com.oracle.ochsignin.models.OCHEmployee;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -32,7 +34,7 @@ public class SignInActivity extends AppCompatActivity {
     private Button mScanButton;
 
     // Java Elements
-    Set<OCHEmployee> validEmployees;
+    Map<Integer, OCHEmployee> validEmployees;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,16 +53,34 @@ public class SignInActivity extends AppCompatActivity {
             }
         });
 
+        validEmployees = setUpValidEmployees();
+    }
+
+    /**
+     * Pulls the list of valid employees from the server and sets up a map of ID --> Employee Obj
+     * @return a map of employee ID --> employee object
+     */
+    private Map<Integer, OCHEmployee> setUpValidEmployees() {
+        Map<Integer, OCHEmployee> result = new HashMap<>();
+
         ParseQuery<OCHEmployee> employeeQuery = ParseQuery.getQuery("OCHEmployee");
         employeeQuery.orderByDescending("employeeId");
 
-        validEmployees = new HashSet<>();
+        Set<OCHEmployee> serverEmployees = new HashSet<>();
 
         try {
-            validEmployees = new HashSet<OCHEmployee>(employeeQuery.find());
+            serverEmployees = new HashSet<OCHEmployee>(employeeQuery.find());
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
+        Iterator empIter = serverEmployees.iterator();
+        while (empIter.hasNext()) {
+            OCHEmployee curEmp = (OCHEmployee) empIter.next();
+            result.put(curEmp.getEmployeeId(), curEmp);
+        }
+
+        return result;
     }
 
     /**
@@ -108,18 +128,19 @@ public class SignInActivity extends AppCompatActivity {
                     Snackbar.make(mCoordinatorLayout, getResources().getString(R.string.sign_in_error),
                             Snackbar.LENGTH_LONG).show();
                 } else if(resultId != -1) {
-                    Iterator employeesIter = validEmployees.iterator();
-                    while (employeesIter.hasNext()) {
-                        OCHEmployee emp = (OCHEmployee) employeesIter.next();
-                        if (emp.getEmployeeId() == resultId) {
-                            String successMessage = getResources().getString(R.string.sign_in_success);
-                            successMessage += emp.getEmployeeName();
-                            Snackbar.make(mCoordinatorLayout, successMessage, Snackbar.LENGTH_LONG).show();
+                    if (validEmployees.containsKey(resultId)) {
+                        OCHEmployee curEmp = validEmployees.get(resultId);
 
-                            emp.setAttended(true);
-                            emp.saveInBackground();
-                            break;
-                        }
+                        String successMessage = getResources().getString(R.string.sign_in_success) +
+                                curEmp.getEmployeeName();
+                        Snackbar.make(mCoordinatorLayout, successMessage, Snackbar.LENGTH_LONG).show();
+
+                        curEmp.setAttended(true);
+                        curEmp.saveInBackground();
+                        return;
+                    } else {
+                        Snackbar.make(mCoordinatorLayout, getResources().getString(R.string.sign_in_error),
+                                Snackbar.LENGTH_LONG).show();
                     }
                 } else {
                     Snackbar.make(mCoordinatorLayout, getResources().getString(R.string.sign_in_error),
