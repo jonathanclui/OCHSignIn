@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">OCH Sign In</string>
+
+    <!-- Activity Titles -->
+    <string name="activity_sign_in">OCH Friday Lunch Sign In</string>
+
+    <!-- Action Strings -->
+    <string name="action_settings">Settings</string>
+
+    <!-- Barcode Helper Strings -->
+    <string name="scan_prompt">Please Scan an Oracle ID</string>
+    <string name="scan_title">Friday Lunch</string>
+    <string name="scan_button_title">Sign In</string>
+    <string name="scan_mode">SCAN_MODE</string>
+    <string name="no_scanner_found">No Scanner Found</string>
+    <string name="prompt_download_scanner">Download a scanner code activity?</string>
+    
+    <!-- Other Strings -->
+    <string name="sign_in_success">SUCCESS! Thanks for signing in&#160;</string>
+    <string name="sign_in_error">ERROR: You must be an Oracle Employee in OCH</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+
+</resources>
